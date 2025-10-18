@@ -102,7 +102,7 @@ vim.g.have_nerd_font = false
 vim.o.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.o.relativenumber = true
+vim.o.relativenumber = true -- NOTE: Default is false
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.o.mouse = 'a'
@@ -216,6 +216,46 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
   callback = function()
     vim.hl.on_yank()
+  end,
+})
+
+-- Create an augroup for templates
+vim.api.nvim_create_augroup('templates', { clear = true })
+
+vim.api.nvim_create_user_command('AddGuard', function()
+  local filename_upper = vim.fn.toupper(vim.fn.expand '%:t:r') .. '_H'
+  -- Insert header guard at the beginning
+  vim.cmd(":0put = '#ifndef __" .. filename_upper .. "__'")
+  vim.cmd(":1put = '#define __" .. filename_upper .. "__'")
+  -- Terminate header guard at the end
+  vim.cmd(":$put = '#endif  // __" .. filename_upper .. "__'")
+end, {})
+
+vim.api.nvim_create_user_command('ReplaceGuard', function()
+  local filename_upper = vim.fn.toupper(vim.fn.expand '%:t:r') .. '_H'
+  vim.cmd(':%s/SKEL_H/' .. filename_upper .. '/g')
+end, {})
+
+vim.api.nvim_create_autocmd('BufNewFile', {
+  group = vim.api.nvim_create_augroup('templates', { clear = true }),
+  pattern = { '*.sh', '*.py', '*.c', '*.cpp', '*.h' },
+  callback = function()
+    local extension = vim.fn.expand '%:e' -- Get file extension
+    local templates = {
+      sh = 'skel.sh',
+      py = 'skel.py',
+      c = 'skel.c',
+      cpp = 'skel.cpp',
+      h = 'skel.h',
+    }
+    local template = templates[extension]
+    if template then
+      vim.cmd('0r ~/.config/nvim/templates/' .. template .. ' | $')
+      if extension == 'h' then
+        vim.cmd 'ReplaceGuard'
+        -- vim.cmd("AddGuard")
+      end
+    end
   end,
 })
 
