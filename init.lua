@@ -344,6 +344,20 @@ require('lazy').setup({
     },
   },
 
+  {
+    'leath-dub/snipe.nvim',
+    keys = {
+      {
+        'gb',
+        function()
+          require('snipe').open_buffer_menu()
+        end,
+        desc = 'Open Snipe buffer menu',
+      },
+    },
+    opts = {},
+  },
+
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
   --
   -- This is often very useful to both group configuration, as well as handle
