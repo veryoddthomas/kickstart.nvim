@@ -102,8 +102,8 @@ hi Todo guifg=#ffff00 guibg=#000000 gui=reverse cterm=reverse
 hi Folded guifg=#00cdcd guibg=#3a3a3a gui=NONE cterm=NONE
 hi Visual guifg=#000000 guibg=#a9a9a9 gui=bold cterm=NONE
 hi CursorColumn guifg=NONE guibg=#666666 gui=NONE cterm=NONE
-hi CursorLine guifg=NONE guibg=#666666 gui=NONE cterm=NONE
-hi CursorLineNr guifg=#ffff00 guibg=#666666 gui=NONE cterm=NONE
+hi CursorLine guifg=NONE guibg=#333333 gui=NONE cterm=NONE
+hi CursorLineNr guifg=#ffffff guibg=#333333 gui=NONE cterm=NONE
 hi SignColumn guifg=#00ffff guibg=NONE gui=NONE cterm=NONE
 hi FoldColumn guifg=#00ffff guibg=NONE gui=NONE cterm=NONE
 hi ColorColumn guifg=#cccccc guibg=#8b0000 gui=NONE cterm=NONE
