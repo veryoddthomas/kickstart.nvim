@@ -982,6 +982,192 @@ require('lazy').setup({
     end,
   },
 
+  {
+    'github/copilot.vim',
+    config = function()
+      -- Basic Copilot setup for code completion
+      vim.keymap.set('i', '<C-J>', 'copilot#Accept("<CR>")', {
+        expr = true,
+        replace_keycodes = false,
+      })
+
+      -- Optional: Disable copilot for certain filetypes
+      -- vim.g.copilot_filetypes = {
+      --   ["*"] = false,
+      --   ["javascript"] = true,
+      --   ["typescript"] = true,
+      --   ["lua"] = true,
+      --   ["rust"] = true,
+      --   ["c"] = true,
+      --   ["c++"] = true,
+      --   ["go"] = true,
+      --   ["python"] = true,
+      -- }
+    end,
+  },
+
+  -- GitHub Copilot Chat for interactive AI assistance
+  {
+    'CopilotC-Nvim/CopilotChat.nvim',
+    branch = 'main',
+    tag = 'v4.7.2',
+    dependencies = {
+      { 'github/copilot.vim' }, -- or github/copilot.lua
+      { 'nvim-lua/plenary.nvim' }, -- for curl, log wrapper
+    },
+    opts = {
+      debug = false, -- Enable debugging
+      -- See Configuration section for rest
+    },
+    config = function(_, opts)
+      local chat = require 'CopilotChat'
+      local select = require 'CopilotChat.select'
+
+      chat.setup(opts)
+
+      -- Cody-like keymaps
+      local keymap_opts = { noremap = true, silent = true }
+
+      -- Helper function to get proper visual selection
+      local function get_visual_selection()
+        -- Save current selection
+        local start_pos = vim.fn.getpos "'<"
+        local end_pos = vim.fn.getpos "'>"
+
+        -- Get the selected text
+        local lines = vim.fn.getline(start_pos[2], end_pos[2])
+        if #lines == 0 then
+          return nil
+        end
+
+        -- Handle partial line selections
+        if #lines == 1 then
+          lines[1] = string.sub(lines[1], start_pos[3], end_pos[3])
+        else
+          lines[1] = string.sub(lines[1], start_pos[3])
+          lines[#lines] = string.sub(lines[#lines], 1, end_pos[3])
+        end
+
+        return table.concat(lines, '\n')
+      end
+
+      -- Explain code (Normal and Visual modes) - equivalent to :CodyExplain
+      vim.keymap.set('n', '<leader>ce', function()
+        chat.ask('Explain this code', { selection = select.buffer })
+      end, vim.tbl_extend('force', keymap_opts, { desc = 'Copilot - Explain Code' }))
+
+      vim.keymap.set('v', '<leader>ce', function()
+        local selected_text = get_visual_selection()
+        if selected_text then
+          chat.ask('Explain this code:\n\n```\n' .. selected_text .. '\n```')
+        end
+      end, vim.tbl_extend('force', keymap_opts, { desc = 'Copilot - Explain Code' }))
+
+      -- Review code (Visual mode) - equivalent to :CodyAsk review and suggest improvements
+      vim.keymap.set('v', '<leader>cr', function()
+        local selected_text = get_visual_selection()
+        if selected_text then
+          chat.ask('Review this code and suggest improvements:\n\n```\n' .. selected_text .. '\n```')
+        end
+      end, vim.tbl_extend('force', keymap_opts, { desc = 'Copilot - Review Code' }))
+
+      -- Generate Docstring (Normal and Visual modes) - equivalent to :CodyTask add documentation in doxygen format
+      -- vim.keymap.set("n", "<leader>cd", function()
+      --   chat.ask("Add documentation in doxygen format for this code. Please provide ONLY the documentation that should be inserted, without explanations. Do not delete anything from the file. Only add documentation.", { selection = select.buffer })
+      -- end, vim.tbl_extend("force", keymap_opts, { desc = "Copilot - Generate Docstring" }))
+      vim.keymap.set('n', '<leader>c^', function()
+        chat.ask('Create top of file doxygen documentation. Provide Only a /** */ comment block. Default dtharp as @author.', { selection = select.buffer })
+      end, vim.tbl_extend('force', keymap_opts, { desc = 'Copilot - Generate top of file Docstring' }))
+
+      vim.keymap.set('n', '<leader>cd', function()
+        chat.ask(
+          'Add doxygen documentation to this code. Return the COMPLETE original file with doxygen comments inserted above functions/classes. Do not modify, delete, or replace any existing code, includes, or variables. Only add /** */ comment blocks.',
+          { selection = select.buffer }
+        )
+      end, vim.tbl_extend('force', keymap_opts, { desc = 'Copilot - Generate Docstring' }))
+
+      vim.keymap.set('v', '<leader>cd', function()
+        local selected_text = get_visual_selection()
+        if selected_text then
+          chat.ask(
+            'Add documentation in doxygen format for this code. Return the COMPLETE original selection with doxygen comments inserted above functions/classes. Do not modify, delete, or replace any existing code, includes, or variables. Only add /** */ comment blocks :\n\n```\n'
+              .. selected_text
+              .. '\n```'
+          )
+        end
+      end, vim.tbl_extend('force', keymap_opts, { desc = 'Copilot - Generate Docstring' }))
+
+      -- Apply the last Copilot suggestion to current buffer
+      vim.keymap.set('n', '<leader>ca', function()
+        vim.cmd 'CopilotChatApply'
+      end, vim.tbl_extend('force', keymap_opts, { desc = 'Copilot - Apply Last Suggestion' }))
+
+      -- Edit code / Fixup (Visual mode selection) - equivalent to :CodyTask Fixup
+      vim.keymap.set('v', '<leader>cf', function()
+        local selected_text = get_visual_selection()
+        if selected_text then
+          chat.ask('Fix and improve this code:\n\n```\n' .. selected_text .. '\n```')
+        end
+      end, vim.tbl_extend('force', keymap_opts, { desc = 'Copilot - Edit/Fixup Selected Code' }))
+
+      -- Open Copilot Chat (Normal mode) - equivalent to :CodyChat
+      vim.keymap.set('n', '<leader>cc', function()
+        chat.open()
+      end, vim.tbl_extend('force', keymap_opts, { desc = 'Copilot - Open Chat' }))
+
+      -- Open Copilot Chat (Normal mode). Force new chat - equivalent to :CodyChat!
+      vim.keymap.set('n', '<leader>cC', function()
+        chat.reset()
+        chat.open()
+      end, vim.tbl_extend('force', keymap_opts, { desc = 'Copilot - Open New Chat' }))
+
+      -- Custom task prompt (similar to :CodyTask) - equivalent to :CodyTask
+      vim.keymap.set('n', '<leader>ct', function()
+        local input = vim.fn.input 'Copilot Task: '
+        if input ~= '' then
+          chat.ask(input, { selection = select.buffer })
+        end
+      end, vim.tbl_extend('force', keymap_opts, { desc = 'Copilot - Custom Task' }))
+
+      vim.keymap.set('v', '<leader>ct', function()
+        local input = vim.fn.input 'Copilot Task: '
+        if input ~= '' then
+          local selected_text = get_visual_selection()
+          if selected_text then
+            chat.ask(input .. ':\n\n```\n' .. selected_text .. '\n```')
+          end
+        end
+      end, vim.tbl_extend('force', keymap_opts, { desc = 'Copilot - Custom Task' }))
+
+      -- Additional useful keymaps that weren't in Cody but are handy
+
+      -- Toggle Copilot Chat
+      vim.keymap.set('n', '<leader>cT', function()
+        chat.toggle()
+      end, vim.tbl_extend('force', keymap_opts, { desc = 'Copilot - Toggle Chat' }))
+
+      -- Quick actions for selected text
+      vim.keymap.set('v', '<leader>co', function()
+        local selected_text = get_visual_selection()
+        if selected_text then
+          chat.ask('Optimize this code for better performance and readability:\n\n```\n' .. selected_text .. '\n```')
+        end
+      end, vim.tbl_extend('force', keymap_opts, { desc = 'Copilot - Optimize Code' }))
+
+      vim.keymap.set('v', '<leader>cu', function()
+        local selected_text = get_visual_selection()
+        if selected_text then
+          chat.ask('Write unit tests for this code:\n\n```\n' .. selected_text .. '\n```')
+        end
+      end, vim.tbl_extend('force', keymap_opts, { desc = 'Copilot - Write Unit Tests' }))
+
+      -- Commit message generation
+      vim.keymap.set('n', '<leader>cm', function()
+        chat.ask('Write a commit message for these changes', { selection = select.gitdiff })
+      end, vim.tbl_extend('force', keymap_opts, { desc = 'Copilot - Generate Commit Message' }))
+    end,
+  },
+
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
     config = function()
