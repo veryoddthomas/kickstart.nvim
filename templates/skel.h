@@ -1,6 +1,6 @@
-#ifndef SKEL_H
-#define SKEL_H
+#ifndef __SKEL_H__
+#define __SKEL_H__
 
 // Function declarations or struct definitions go here
 
-#endif /* SKEL_H */
+#endif /* __SKEL_H__ */

@@ -345,6 +345,19 @@ require('lazy').setup({
   },
 
   {
+    'NeogitOrg/neogit',
+    dependencies = {
+      'nvim-lua/plenary.nvim', -- required
+      'sindrets/diffview.nvim', -- optional - Diff integration
+
+      -- Only one of these is needed.
+      'nvim-telescope/telescope.nvim', -- optional
+      'ibhagwan/fzf-lua', -- optional
+      'nvim-mini/mini.pick', -- optional
+      'folke/snacks.nvim', -- optional
+    },
+  },
+  {
     'leath-dub/snipe.nvim',
     keys = {
       {
@@ -974,6 +987,17 @@ require('lazy').setup({
 
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = true } },
+
+  { -- Jest plugin for Neovim
+    'mattkubej/jest.nvim',
+    config = function()
+      require('nvim-jest').setup {
+        jest_cmd = 'npm test --',
+        -- Prevents tests from printing messages
+        silent = true,
+      }
+    end,
+  },
 
   { -- Command and uncomment code
     'tpope/vim-commentary',
