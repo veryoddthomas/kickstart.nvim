@@ -87,7 +87,7 @@ hi! link StatusLineTermNC StatusLineNC
 hi! link MessageWindow Pmenu
 hi! link PopupNotification Todo
 hi! link PopupSelected PmenuSel
-hi Normal guifg=#777777 guibg=#000000 gui=NONE cterm=NONE
+hi Normal guifg=#777777 guibg=#101820 gui=NONE cterm=NONE
 hi Comment guifg=#778899 guibg=NONE gui=NONE cterm=NONE
 hi Constant guifg=#997788 guibg=NONE gui=NONE cterm=NONE
 hi Identifier guifg=#cccccc guibg=NONE gui=NONE cterm=NONE
