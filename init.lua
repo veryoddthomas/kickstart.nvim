@@ -742,6 +742,17 @@ require('lazy').setup({
         },
       }
 
+      vim.g.diagnostics_active = true
+      function ToggleDiagnostics()
+        vim.g.diagnostics_active = not vim.g.diagnostics_active
+        if vim.g.diagnostics_active then
+          vim.diagnostic.enable()
+        else
+          vim.diagnostic.enable(false)
+        end
+      end
+      vim.keymap.set('n', '<leader>td', ToggleDiagnostics, { desc = '[T]oggle [D]iagnostics' })
+
       -- LSP servers and clients are able to communicate to each other what features they support.
       --  By default, Neovim doesn't support everything that is in the LSP specification.
       --  When you add blink.cmp, luasnip, etc. Neovim now has *more* capabilities.
