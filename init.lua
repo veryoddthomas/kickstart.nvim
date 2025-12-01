@@ -171,6 +171,8 @@ vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
 vim.opt.softtabstop = 4
 
+vim.opt.linebreak = true
+
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
