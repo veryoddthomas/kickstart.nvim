@@ -296,6 +296,23 @@ end
 local rtp = vim.opt.rtp
 rtp:prepend(lazypath)
 
+-- Function to open multiple selected files in Telescope
+local multi_open = function(prompt_bufnr)
+  local picker = require('telescope.actions.state').get_current_picker(prompt_bufnr)
+  local selections = picker:get_multi_selection()
+
+  if #selections > 0 then
+    require('telescope.actions').close(prompt_bufnr)
+    for _, entry in ipairs(selections) do
+      local filename = entry.filename or entry.value
+      local row = entry.lnum or 1
+      vim.cmd(string.format('edit +%d %s', row, filename))
+    end
+  else
+    require('telescope.actions').select_default(prompt_bufnr)
+  end
+end
+
 -- [[ Configure and install plugins ]]
 --
 --  To check the current status of your plugins, run
@@ -498,7 +515,10 @@ require('lazy').setup({
         --
         defaults = {
           mappings = {
-            i = { ['<c-enter>'] = 'to_fuzzy_refine' },
+            i = {
+              ['<c-enter>'] = 'to_fuzzy_refine',
+              ['<c-o>'] = multi_open, -- Open multiple selected files with ctrl+o
+            },
           },
         },
         -- pickers = {}
@@ -1317,6 +1337,14 @@ require('lazy').setup({
     --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
     --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
+  },
+  {
+    'rmagatti/auto-session',
+    lazy = false,
+    opts = {
+      suppressed_dirs = { '~/', '~/Projects', '~/Downloads', '/' },
+      -- log_level = 'debug',
+    },
   },
 
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
