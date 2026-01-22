@@ -518,6 +518,14 @@ require('lazy').setup({
             i = {
               ['<c-enter>'] = 'to_fuzzy_refine',
               ['<c-o>'] = multi_open, -- Open multiple selected files with ctrl+o
+              ['<c-d>'] = require('telescope.actions').delete_buffer,
+              ['dd'] = require('telescope.actions').delete_buffer,
+            },
+            n = {
+              ['<c-enter>'] = 'to_fuzzy_refine',
+              ['<c-o>'] = multi_open, -- Open multiple selected files with ctrl+o
+              ['<c-d>'] = require('telescope.actions').delete_buffer,
+              ['dd'] = require('telescope.actions').delete_buffer,
             },
           },
         },
