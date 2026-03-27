@@ -227,6 +227,9 @@ vim.keymap.set('n', '<leader>\\', ':vsplit<CR>')
 vim.keymap.set('n', '<leader>-', ':split<CR>')
 vim.keymap.set('n', '<leader>_', ':split<CR>')
 
+-- vim.keymap.set('n', '<Esc-<left>>', ':bp', { desc = 'Previous buffer' })
+-- vim.keymap.set('n', '<Esc-<right>>', ':bn', { desc = 'Next buffer' })
+
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
@@ -999,11 +1002,17 @@ require('lazy').setup({
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
-        -- Conform can also run multiple formatters sequentially
+        cpp = { 'clang_format' },
+        c = { 'clang_format' }, -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
         -- javascript = { "prettierd", "prettier", stop_after_first = true },
+      },
+      formatters = {
+        clang_format = {
+          prepend_args = { '--style=file', '--fallback-style=LLVM' },
+        },
       },
     },
   },
